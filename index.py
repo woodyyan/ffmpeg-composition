@@ -17,7 +17,7 @@ from qcloud_vod.vod_upload_client import VodUploadClient
 from text import Text
 
 cmd_path_ffmpeg = '/tmp/ffmpeg'
-video_command = cmd_path_ffmpeg + " -y -i %s -vf '%s' -c:v libx264 -x264-params nal-hrd=cbr:force-cfr=1 -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 %s"
+video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s,%s" -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
 cmd_path_ffprobe = '/tmp/ffprobe'
 cmd_query_video_info = cmd_path_ffprobe + ' -select_streams v -show_entries format=duration,size,bit_rate,filename -show_streams -v quiet -of csv="p=0" -of json -i %s'
 cmd_download = "curl -o %s  '%s' -H 'Connection: keep-alive' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'  " \
@@ -69,7 +69,10 @@ def main_handler(event, context):
         logger.info('开始处理视频：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         output_video = '/tmp/output.mp4'
         scale_param = calc_scale_param(input_video_path, params.width, params.height)
-        child = subprocess.run(video_command % (input_video_path, scale_param, output_video),
+        text_param = calc_text_param(params.texts)
+        command = video_command % (input_video_path, scale_param, text_param, output_video)
+        print(command)
+        child = subprocess.run(command,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, close_fds=True, shell=True)
         if child.returncode == 0:
@@ -108,6 +111,15 @@ def main_handler(event, context):
     # clear_files('/tmp/')
 
     return callback_body
+
+
+def calc_text_param(texts):
+    text_param = ''
+    template = "drawtext=text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.5:boxborderw=5:x=%s:y=%s,"
+    for text in texts:
+        text_param += template % (text.content, text.size, text.x, text.y)
+
+    return text_param.strip(',')
 
 
 def extract_parameters(req_body):
@@ -298,16 +310,22 @@ if __name__ == '__main__':
                                 "Bitrate": 500,
                                 "Texts": [
                                     {
-                                        "Content": "xxxxxxxxxxx",
-                                        "X": 1,
-                                        "Y": 2,
+                                        "Content": "作品名称：包装动画制作-缩放",
+                                        "X": "(w-text_w)/2",
+                                        "Y": "(h-text_h)/5",
                                         "Size": 30
                                     },
                                     {
-                                        "Content": "YYYYYYY",
-                                        "X": 1,
-                                        "Y": 2,
-                                        "Size": 20
+                                        "Content": "一米阳光的创作过程",
+                                        "X": "(w-text_w)/2",
+                                        "Y": "(h-text_h)/5*4",
+                                        "Size": 24
+                                    },
+                                    {
+                                        "Content": "2022.1.19",
+                                        "X": "(w-text_w)/2",
+                                        "Y": "h/5*4+text_h",
+                                        "Size": 24
                                     }
                                 ],
                                 "Pictures": [

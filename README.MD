@@ -80,10 +80,19 @@
 | TargetVideoSpec.Resolution | int | 目标分辨率 |
 | TargetVideoSpec.Framerate | int | 目标帧率 |
 | TargetVideoSpec.Bitrate | int | 目标码率 |
-| Texts | list | 要添加的多种文字 |
+| Texts | list | 要添加的多种文字，x,y表达式请参考下面。 |
 | Pictures | list | 要添加的多张图片 |
 | Region | int | 要上传的VOD的地域 |
 | SubAppId | int | 要上传的VOD的subappid |
+
+Texts的x和y支持以下表达式：
+- Top left: `x=0:y=0` (with 10 pixel padding `x=10:y=10`)
+- Top center: `x=(w-text_w)/2:y=0` (with 10 px padding `x=(w-text_w)/2:y=10`)
+- Top right: `x=w-tw:y=0` (with 10 px padding: `x=w-tw-10:y=10`)
+- Centered: `x=(w-text_w)/2:y=(h-text_h)/2`
+- Bottom left: `x=0:y=h-th` (with 10 px padding: `x=10:y=h-th-10`)
+- Bottom center: `x=(w-text_w)/2:y=h-th` (with 10 px padding: `x=(w-text_w)/2:y=h-th-10`)
+- Bottom right: `x=w-tw:y=h-th` (with 10 px padding: `x=w-tw-10:y=h-th-10`)
 
 成功回调JSON：
 
