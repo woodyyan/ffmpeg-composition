@@ -16,8 +16,10 @@ from qcloud_vod.model import VodUploadRequest
 from qcloud_vod.vod_upload_client import VodUploadClient
 from text import Text
 
-transform_command = '''/tmp/ffmpeg -y -i %s %s'''
-video_command = '''/tmp/ffmpeg -y -i %s -ss %s -to %s -c copy %s'''
+cmd_path_ffmpeg = '/tmp/ffmpeg'
+video_command = cmd_path_ffmpeg + ' -y -i %s -vf %s -c:v libx264 -x264-params nal-hrd=cbr:force-cfr=1 -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 %s'
+cmd_path_ffprobe = '/tmp/ffprobe'
+cmd_query_video_info = cmd_path_ffprobe + ' -select_streams v -show_entries format=duration,size,bit_rate,filename -show_streams -v quiet -of csv="p=0" -of json -i %s'
 cmd_download = "curl -o %s  '%s' -H 'Connection: keep-alive' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'  " \
                "-H 'Accept: */*' -H 'Referer: %s' -H 'Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en-HK;q=0.7,en;q=0.6' -H 'Range: bytes=0-' --compressed --insecure"
 
@@ -56,6 +58,9 @@ def main_handler(event, context):
     subprocess.run(
         'cp ./ffmpeg /tmp/ffmpeg && chmod 755 /tmp/ffmpeg',
         shell=True)
+    subprocess.run(
+        'cp ./ffprobe /tmp/ffprobe && chmod 755 /tmp/ffprobe',
+        shell=True)
 
     try:
         logger.info('开始下载视频：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
@@ -64,7 +69,8 @@ def main_handler(event, context):
 
         logger.info('开始处理视频：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         output_video = '/tmp/output.mp4'
-        child = subprocess.run(video_command % (input_video_path, start_time, end_time, output_video),
+        scale_param = calc_scale_param(input_video_path, params.width, params.height)
+        child = subprocess.run(video_command % (input_video_path, scale_param, output_video),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, close_fds=True, shell=True)
         if child.returncode == 0:
@@ -205,6 +211,75 @@ def clear_files(src):
         pass
 
 
+# 查询视频文件宽和高
+def query_width_height(file_path):
+    width = -1
+    height = -1
+
+    video_info = ffprobe_info(file_path)
+    if video_info:
+        width = video_info['streams'][0]['width']
+        height = video_info['streams'][0]['height']
+
+    logger.info("media file width[%s], height[%s]" % (width, height))
+
+    return width, height
+
+
+# 获取源视频信息，分辨率等
+def ffprobe_info(file_path):
+    video_info = None
+
+    command = cmd_query_video_info % (file_path,)
+    logger.info("ffprobe query file info command: %s" % (command,))
+    ret = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         close_fds=True, shell=True)
+    if ret.returncode == 0:
+        logger.info('query file info command finished.')
+        video_info = json.loads(ret.stdout)
+    else:
+        logger.warning('query file info command failed, ret code: {}, err: {}'.format(ret.returncode, ret.stderr))
+
+    return video_info
+
+
+def calc_scale_param(video_path, target_video_width, target_video_height):
+    width, height = query_width_height(video_path)
+    if width != target_video_width or height != target_video_height:
+        scale_param = ""
+        if width < target_video_width and height <= target_video_height:
+            x = (target_video_width - width) / 2
+            y = (target_video_width - height) / 2
+            scale_param = "pad=%d:%d:%d:%d:black" % (target_video_width, target_video_height, x, y)
+        else:
+            if width > target_video_width:
+                _width = target_video_width
+                _height = height * target_video_width / width
+                if _height <= target_video_height:
+                    x = 0
+                    y = (target_video_height - _height) / 2
+                    scale_param = "scale=%d:%d,pad=%d:%d:%d:%d:black" % (
+                        _width, _height, target_video_width, target_video_height, x, y)
+                else:
+                    _width = _width * target_video_height / _height
+                    _height = target_video_height
+                    x = (target_video_width - _width) / 2
+                    y = 0
+                    scale_param = "scale=%d:%d,pad=%d:%d:%d:%d:black" % (
+                        _width, _height, target_video_width, target_video_height, x, y)
+            else:
+                if height > target_video_height:
+                    _width = width * target_video_height / height
+                    _height = target_video_height
+                    x = (target_video_width - _width) / 2
+                    y = 0
+                    scale_param = "scale=%d:%d,pad=%d:%d:%d:%d:black" % (
+                        _width, _height, target_video_width, target_video_height, x, y)
+        return scale_param
+    else:
+        return ''
+
+
 if __name__ == '__main__':
     event = {
         'body': '''{
@@ -258,6 +333,8 @@ if __name__ == '__main__':
 
     os.environ.setdefault("TENCENTCLOUD_SECRETID", TENCENTCLOUD_SECRETID)
     os.environ.setdefault("TENCENTCLOUD_SECRETKEY", TENCENTCLOUD_SECRETKEY)
+    video_command = video_command.replace('/tmp/', '')
+    cmd_query_video_info = cmd_query_video_info.replace('/tmp', '')
     main_handler(event, context)
 
     print('')
