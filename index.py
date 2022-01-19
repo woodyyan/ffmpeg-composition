@@ -17,7 +17,7 @@ from qcloud_vod.vod_upload_client import VodUploadClient
 from text import Text
 
 cmd_path_ffmpeg = '/tmp/ffmpeg'
-video_command = cmd_path_ffmpeg + ' -y -i %s -vf %s -c:v libx264 -x264-params nal-hrd=cbr:force-cfr=1 -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 %s'
+video_command = cmd_path_ffmpeg + " -y -i %s -vf '%s' -c:v libx264 -x264-params nal-hrd=cbr:force-cfr=1 -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 %s"
 cmd_path_ffprobe = '/tmp/ffprobe'
 cmd_query_video_info = cmd_path_ffprobe + ' -select_streams v -show_entries format=duration,size,bit_rate,filename -show_streams -v quiet -of csv="p=0" -of json -i %s'
 cmd_download = "curl -o %s  '%s' -H 'Connection: keep-alive' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'  " \
@@ -37,11 +37,10 @@ def main_handler(event, context):
         return {"code": 410, "errorMsg": "event is not come from api gateway"}
 
     req_body = event['body']
-    callback_url = ""
     try:
         params = extract_parameters(req_body)
 
-        if not callback_url:
+        if not params.callback_url:
             logger.warning("Callback url是空的，请检查。")
     except Exception as err:
         logger.error("bad request: %s, please check." % (str(err)))
@@ -51,7 +50,7 @@ def main_handler(event, context):
             "ErrorMessage": "Invalid parameter: " + str(err),
             "RequestId": request_id
         }
-        callback(callback_url, callback_body)
+        callback(params.callback_url, callback_body)
         return json.dumps(callback_body)
 
     # 将ffmpeg文件复制到/tmp下并赋予执行权限
@@ -102,7 +101,7 @@ def main_handler(event, context):
         pass
 
     # 回调逻辑
-    callback(callback_url, callback_body)
+    callback(params.callback_url, callback_body)
 
     # 清理工作目录
     # TODO
@@ -244,13 +243,15 @@ def ffprobe_info(file_path):
 
 
 def calc_scale_param(video_path, target_video_width, target_video_height):
+    return 'scale=720:-1,pad=720:1280:0:(oh-ih)/2:black'
     width, height = query_width_height(video_path)
     if width != target_video_width or height != target_video_height:
         scale_param = ""
         if width < target_video_width and height <= target_video_height:
             x = (target_video_width - width) / 2
             y = (target_video_width - height) / 2
-            scale_param = "pad=%d:%d:%d:%d:black" % (target_video_width, target_video_height, x, y)
+            scale_param = "scale=%d:%d,pad=%d:%d:%d:%d:black" % (
+                target_video_width, target_video_height, target_video_width, target_video_height, x, y)
         else:
             if width > target_video_width:
                 _width = target_video_width
@@ -262,7 +263,7 @@ def calc_scale_param(video_path, target_video_width, target_video_height):
                         _width, _height, target_video_width, target_video_height, x, y)
                 else:
                     _width = _width * target_video_height / _height
-                    _height = target_video_height
+                    _height = target_video_heightCallback
                     x = (target_video_width - _width) / 2
                     y = 0
                     scale_param = "scale=%d:%d,pad=%d:%d:%d:%d:black" % (
