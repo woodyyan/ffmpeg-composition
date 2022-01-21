@@ -18,6 +18,7 @@ from text import Text
 
 cmd_path_ffmpeg = '/tmp/ffmpeg'
 video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s,%s" -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
+image_command = cmd_path_ffmpeg + ''' -y -i /tmp/output.mp4 -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/logo.png -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/学员头像.jpg -filter_complex "[1:v][0:v]scale2ref=168:50[1][0];[0][1]overlay=(W-w)/2:(H-h)/7[bg0];[2:v][bg0]scale2ref=50:50[2][bg0];[bg0][2]overlay=(W-w)/2:(H-h-h)[v]" -map "[v]" output.mp4'''
 cmd_path_ffprobe = '/tmp/ffprobe'
 cmd_query_video_info = cmd_path_ffprobe + ' -select_streams v -show_entries format=duration,size,bit_rate,filename -show_streams -v quiet -of csv="p=0" -of json -i %s'
 cmd_download = "curl -o %s  '%s' -H 'Connection: keep-alive' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'  " \
@@ -37,8 +38,10 @@ def main_handler(event, context):
         return {"code": 410, "errorMsg": "event is not come from api gateway"}
 
     req_body = event['body']
+    callback_url = ''
     try:
         params = extract_parameters(req_body)
+        callback_url = params.callback_url
 
         if not params.callback_url:
             logger.warning("Callback url是空的，请检查。")
@@ -50,7 +53,7 @@ def main_handler(event, context):
             "ErrorMessage": "Invalid parameter: " + str(err),
             "RequestId": request_id
         }
-        callback(params.callback_url, callback_body)
+        callback(callback_url, callback_body)
         return json.dumps(callback_body)
 
     # 将ffmpeg文件复制到/tmp下并赋予执行权限
@@ -71,7 +74,6 @@ def main_handler(event, context):
         scale_param = calc_scale_param(input_video_path, params.width, params.height)
         text_param = calc_text_param(params.texts)
         command = video_command % (input_video_path, scale_param, text_param, output_video)
-        print(command)
         child = subprocess.run(command,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, close_fds=True, shell=True)
@@ -80,6 +82,21 @@ def main_handler(event, context):
         else:
             print("error:", child)
             raise KeyError("拼接视频失败, 错误: ", child)
+
+        if len(params.pictures) > 0:
+            pic_output_video = '/tmp/output_pic.mp4'
+            pic_param = calc_pic_param(params.pictures, output_video, pic_output_video)
+            command = cmd_path_ffmpeg + pic_param
+            child = subprocess.run(command,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, close_fds=True, shell=True)
+            if child.returncode == 0:
+                output_video = pic_output_video
+                print("success:", child)
+            else:
+                print("error:", child)
+                raise KeyError("拼接视频失败, 错误: ", child)
+
         logger.info('处理视频完成：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
         logger.info('开始上传视频：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
@@ -104,13 +121,35 @@ def main_handler(event, context):
         pass
 
     # 回调逻辑
-    callback(params.callback_url, callback_body)
+    callback(callback_url, callback_body)
 
     # 清理工作目录
-    # TODO
-    # clear_files('/tmp/')
+    clear_files('/tmp/')
 
     return callback_body
+
+
+def calc_pic_param(pictures, input_path, output_path):
+    index1 = 0
+    index2 = 1
+    pic_temp = ''
+    ffmpeg_str = ' -y -i ' + input_path
+    final_name = 'v'
+    for pic in pictures:
+        if index1 == 0:
+            pic_temp += '[%d:v][%d:v]scale2ref=%d:%d[%d][%d];[%d][%d]overlay=%s:%s[%s];' % (
+                index2, index1, pic.width, pic.height, index2, index1, index1, index2, pic.x, pic.y,
+                str(index1) + str(index2))
+        else:
+            pic_temp += '[%d:v][%s]scale2ref=%d:%d[%d][%s];[%s][%d]overlay=%s:%s[%s];' % (
+                index2, final_name, pic.width, pic.height, index2, final_name, final_name, index2, pic.x, pic.y,
+                str(index1) + str(index2))
+        final_name = str(index1) + str(index2)
+        index1 += 1
+        index2 += 1
+        ffmpeg_str += ' -i %s' % pic.url
+    ffmpeg_str = ffmpeg_str + ' -filter_complex "' + pic_temp.strip(';') + ('" -map "[%s]" ' % final_name) + output_path
+    return ffmpeg_str
 
 
 def calc_text_param(texts):
@@ -147,7 +186,8 @@ def extract_parameters(req_body):
         x = picture['X']
         y = picture['Y']
         picture_width = picture['Width']
-        pictures.append(Picture(url, x, y, width))
+        picture_height = picture['Height']
+        pictures.append(Picture(url, x, y, picture_width, picture_height))
     vod_region = req_param['Data']['Output']['Vod']['Region']
     sub_app_id = req_param['Data']['Output']['Vod']['SubAppId']
     return Params(video_url, audio, callback_url, framerate, height, width, texts, pictures, vod_region, sub_app_id)
@@ -330,10 +370,18 @@ if __name__ == '__main__':
                                 ],
                                 "Pictures": [
                                     {
-                                        "URL": "xxxx",
-                                        "X": 1,
-                                        "Y": 2,
-                                        "Width": 3
+                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/logo.png",
+                                        "X": "(W-w)/2",
+                                        "Y": "(H-h)/7",
+                                        "Width": 168,
+                                        "Height": 55
+                                    },
+                                    {
+                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/%E5%AD%A6%E5%91%98%E5%A4%B4%E5%83%8F.jpg",
+                                        "X": "(W-w)/2",
+                                        "Y": "(H-h-h*2)",
+                                        "Width": 50,
+                                        "Height": 50
                                     }
                                 ]
                             },
@@ -354,6 +402,7 @@ if __name__ == '__main__':
     os.environ.setdefault("TENCENTCLOUD_SECRETKEY", TENCENTCLOUD_SECRETKEY)
     video_command = video_command.replace('/tmp/', '')
     cmd_query_video_info = cmd_query_video_info.replace('/tmp', '')
+    cmd_path_ffmpeg = 'ffmpeg'
     main_handler(event, context)
 
     print('')

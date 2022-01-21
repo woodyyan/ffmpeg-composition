@@ -53,10 +53,11 @@
             ],
             "Pictures": [
                 {
-                    "URL": "xxxx",
+                    "URL": "xxxx.jpg",
                     "X": 1,
                     "Y": 2,
-                    "Width": 3
+                    "Width": 3,
+                    "Height": 3,
                 }
             ]
         },
