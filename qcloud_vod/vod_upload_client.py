@@ -1,7 +1,7 @@
 import logging
 import os
 
-from qcloud_cos_v5 import CosConfig, CosS3Client
+from qcloud_cos import CosConfig, CosS3Client
 from tencentcloud.common import credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.vod.v20180717 import vod_client, models

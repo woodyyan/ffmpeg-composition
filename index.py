@@ -17,7 +17,7 @@ from qcloud_vod.vod_upload_client import VodUploadClient
 from text import Text
 
 cmd_path_ffmpeg = '/tmp/ffmpeg'
-video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s,%s" -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
+video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s%s" -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
 image_command = cmd_path_ffmpeg + ''' -y -i /tmp/output.mp4 -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/logo.png -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/学员头像.jpg -filter_complex "[1:v][0:v]scale2ref=168:50[1][0];[0][1]overlay=(W-w)/2:(H-h)/7[bg0];[2:v][bg0]scale2ref=50:50[2][bg0];[bg0][2]overlay=(W-w)/2:(H-h-h)[v]" -map "[v]" output.mp4'''
 cmd_path_ffprobe = '/tmp/ffprobe'
 cmd_query_video_info = cmd_path_ffprobe + ' -select_streams v -show_entries format=duration,size,bit_rate,filename -show_streams -v quiet -of csv="p=0" -of json -i %s'
@@ -153,7 +153,7 @@ def calc_pic_param(pictures, input_path, output_path):
 
 
 def calc_text_param(texts):
-    text_param = ''
+    text_param = ','
     template = "drawtext=text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.5:boxborderw=5:x=%s:y=%s,"
     for text in texts:
         text_param += template % (text.content, text.size, text.x, text.y)
@@ -336,63 +336,29 @@ def calc_scale_param(video_path, target_video_width, target_video_height):
 if __name__ == '__main__':
     event = {
         'body': '''{
-                        "Action": "SpliceVideo",
-                        "Data": {
-                            "Input": {
-                                "URL": "http://1500009267.vod2.myqcloud.com/6c9c6980vodcq1500009267/0d7032f3387702294461673432/pz3wNIkIjCEA.mp4",
-                                            "Audio": true,
-                                "CallbackURL": "https://enk885gn0j1qox.m.pipedream.net",
-                                "Resolution": {
-                                    "Width": 720,
-                                    "Height": 1280
-                                },
-                                "Framerate": 15,
-                                "Bitrate": 500,
-                                "Texts": [
-                                    {
-                                        "Content": "作品名称：包装动画制作-缩放",
-                                        "X": "(w-text_w)/2",
-                                        "Y": "(h-text_h)/5",
-                                        "Size": 30
-                                    },
-                                    {
-                                        "Content": "一米阳光的创作过程",
-                                        "X": "(w-text_w)/2",
-                                        "Y": "(h-text_h)/5*4",
-                                        "Size": 24
-                                    },
-                                    {
-                                        "Content": "2022.1.19",
-                                        "X": "(w-text_w)/2",
-                                        "Y": "h/5*4+text_h",
-                                        "Size": 24
-                                    }
-                                ],
-                                "Pictures": [
-                                    {
-                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/logo.png",
-                                        "X": "(W-w)/2",
-                                        "Y": "(H-h)/7",
-                                        "Width": 168,
-                                        "Height": 55
-                                    },
-                                    {
-                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/%E5%AD%A6%E5%91%98%E5%A4%B4%E5%83%8F.jpg",
-                                        "X": "(W-w)/2",
-                                        "Y": "(H-h-h*2)",
-                                        "Width": 50,
-                                        "Height": 50
-                                    }
-                                ]
-                            },
-                            "Output": {
-                                "Vod": {
-                                    "Region": "ap-beijing",
-                                    "SubAppId": 1500009267
-                                }
-                            }
-                        }
-                    }'''
+    "Action": "CompositionVideo",
+    "Data": {
+        "Input": {
+            "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/%E7%89%87%E5%A4%B4.mp4",
+            "Audio": true,
+            "CallbackURL": "https://enk885gn0j1qox.m.pipedream.net",
+            "Resolution": {
+                "Width": 720,
+                "Height": 1280
+            },
+            "Framerate": 15,
+            "Bitrate": 500,
+            "Texts": [],
+            "Pictures": []
+        },
+        "Output": {
+            "Vod": {
+                "Region": "ap-beijing",
+                "SubAppId": 1500009267
+            }
+        }
+    }
+}'''
     }
     context = {
         "request_id": "123"
