@@ -25,7 +25,7 @@
 
 ```jsx
 {
-    "Action": "SpliceVideo",
+    "Action": "CompositionVideo",
     "Data": {
         "Input": {
             "URL": "xxxx",
