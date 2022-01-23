@@ -81,7 +81,7 @@ def main_handler(event, context):
             print("success:", child)
         else:
             print("error:", child)
-            raise KeyError("拼接视频失败, 错误: ", child)
+            raise KeyError("处理视频失败, 错误: ", child)
 
         if len(params.pictures) > 0:
             pic_output_video = '/tmp/output_pic.mp4'
@@ -158,7 +158,7 @@ def calc_text_param(texts):
     for text in texts:
         text_param += template % (text.content, text.size, text.x, text.y)
 
-    return text_param.strip(',')
+    return text_param[0:len(text_param) - 1]
 
 
 def extract_parameters(req_body):
@@ -336,29 +336,63 @@ def calc_scale_param(video_path, target_video_width, target_video_height):
 if __name__ == '__main__':
     event = {
         'body': '''{
-    "Action": "CompositionVideo",
-    "Data": {
-        "Input": {
-            "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/%E7%89%87%E5%A4%B4.mp4",
-            "Audio": true,
-            "CallbackURL": "https://enk885gn0j1qox.m.pipedream.net",
-            "Resolution": {
-                "Width": 720,
-                "Height": 1280
-            },
-            "Framerate": 15,
-            "Bitrate": 500,
-            "Texts": [],
-            "Pictures": []
-        },
-        "Output": {
-            "Vod": {
-                "Region": "ap-beijing",
-                "SubAppId": 1500009267
-            }
-        }
-    }
-}'''
+                        "Action": "SpliceVideo",
+                        "Data": {
+                            "Input": {
+                                "URL": "http://1500009267.vod2.myqcloud.com/6c9c6980vodcq1500009267/0d7032f3387702294461673432/pz3wNIkIjCEA.mp4",
+                                            "Audio": true,
+                                "CallbackURL": "https://enk885gn0j1qox.m.pipedream.net",
+                                "Resolution": {
+                                    "Width": 720,
+                                    "Height": 1280
+                                },
+                                "Framerate": 15,
+                                "Bitrate": 500,
+                                "Texts": [
+                                    {
+                                        "Content": "作品名称：包装动画制作-缩放",
+                                        "X": "(w-text_w)/2",
+                                        "Y": "(h-text_h)/5",
+                                        "Size": 30
+                                    },
+                                    {
+                                        "Content": "一米阳光的创作过程",
+                                        "X": "(w-text_w)/2",
+                                        "Y": "(h-text_h)/5*4",
+                                        "Size": 24
+                                    },
+                                    {
+                                        "Content": "2022.1.19",
+                                        "X": "(w-text_w)/2",
+                                        "Y": "h/5*4+text_h",
+                                        "Size": 24
+                                    }
+                                ],
+                                "Pictures": [
+                                    {
+                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/logo.png",
+                                        "X": "(W-w)/2",
+                                        "Y": "(H-h)/7",
+                                        "Width": 168,
+                                        "Height": 55
+                                    },
+                                    {
+                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/%E5%AD%A6%E5%91%98%E5%A4%B4%E5%83%8F.jpg",
+                                        "X": "(W-w)/2",
+                                        "Y": "(H-h-h*2)",
+                                        "Width": 50,
+                                        "Height": 50
+                                    }
+                                ]
+                            },
+                            "Output": {
+                                "Vod": {
+                                    "Region": "ap-beijing",
+                                    "SubAppId": 1500009267
+                                }
+                            }
+                        }
+                    }'''
     }
     context = {
         "request_id": "123"
@@ -370,5 +404,4 @@ if __name__ == '__main__':
     cmd_query_video_info = cmd_query_video_info.replace('/tmp', '')
     cmd_path_ffmpeg = 'ffmpeg'
     main_handler(event, context)
-
     print('')
