@@ -8,7 +8,6 @@ import sys
 import time
 
 import requests
-
 from config import TENCENTCLOUD_SECRETID, TENCENTCLOUD_SECRETKEY
 from parameters import Params
 from picture import Picture
@@ -100,7 +99,7 @@ def main_handler(event, context):
         logger.info('处理视频完成：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
         logger.info('开始上传视频：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        uploaded_video_url = upload_vod(params.vod_region, params.sub_app_id, output_video)
+        uploaded_video_url = upload_vod(params.vod_region, params.sub_app_id, params.class_id, output_video)
         logger.info('视频上传完成：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
         callback_body = {
@@ -190,7 +189,9 @@ def extract_parameters(req_body):
         pictures.append(Picture(url, x, y, picture_width, picture_height))
     vod_region = req_param['Data']['Output']['Vod']['Region']
     sub_app_id = req_param['Data']['Output']['Vod']['SubAppId']
-    return Params(video_url, audio, callback_url, framerate, height, width, texts, pictures, vod_region, sub_app_id)
+    class_id = req_param['Data']['Output']['Vod']['ClassId']
+    return Params(video_url, audio, callback_url, framerate, height, width, texts, pictures, vod_region, sub_app_id,
+                  class_id)
 
 
 # 回调逻辑。
@@ -204,7 +205,7 @@ def callback(url, data):
 
 
 # 视频上传VOD，sdk自动选择普通上传还是分片上传
-def upload_vod(vod_region, sub_app_id, media_file_path):
+def upload_vod(vod_region, sub_app_id, class_id, media_file_path):
     secret_id = os.environ.get("TENCENTCLOUD_SECRETID")
     secret_key = os.environ.get("TENCENTCLOUD_SECRETKEY")
     token = os.environ.get("TENCENTCLOUD_SESSIONTOKEN")
@@ -215,6 +216,7 @@ def upload_vod(vod_region, sub_app_id, media_file_path):
     request = VodUploadRequest()
     request.SubAppId = sub_app_id
     request.MediaFilePath = media_file_path
+    request.ClassId = class_id
     response = client.upload(vod_region, request)
     logger.info("Upload Success. FileId: %s. MediaUrl: %s, RequestId: %s" % (response.FileId, response.MediaUrl,
                                                                              response.RequestId))
@@ -388,7 +390,8 @@ if __name__ == '__main__':
                             "Output": {
                                 "Vod": {
                                     "Region": "ap-beijing",
-                                    "SubAppId": 1500009267
+                                    "SubAppId": 1500009267,
+                                    "ClassId": 873369
                                 }
                             }
                         }
