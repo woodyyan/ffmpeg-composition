@@ -65,7 +65,7 @@
             "Vod": {
                 "Region": "ap-beijing",
                 "SubAppId": 101, 
-                "ClassId": 873369
+                "ClassId": 0
             }
         }
     }
@@ -86,7 +86,7 @@
 | Pictures | list | 要添加的多张图片 |
 | Region | int | 要上传的VOD的地域 |
 | SubAppId | int | 要上传的VOD的subappid |
-| ClassId | int | 要上传的VOD的分类ID |
+| ClassId | int | 要上传的VOD的分类ID(默认值0) |
 
 Texts的x和y支持以下表达式：
 - Top left: `x=0:y=0` (with 10 pixel padding `x=10:y=10`)
