@@ -17,7 +17,7 @@ from qcloud_vod.vod_upload_client import VodUploadClient
 from text import Text
 
 cmd_path_ffmpeg = '/tmp/ffmpeg'
-video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s%s" -b:v 400000 -bufsize 400000 -minrate 400000 -maxrate 400000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
+video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s%s" -b:v 1800000 -bufsize 1800000 -minrate 1800000 -maxrate 1800000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
 image_command = cmd_path_ffmpeg + ''' -y -i /tmp/output.mp4 -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/logo.png -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/学员头像.jpg -filter_complex "[1:v][0:v]scale2ref=168:50[1][0];[0][1]overlay=(W-w)/2:(H-h)/7[bg0];[2:v][bg0]scale2ref=50:50[2][bg0];[bg0][2]overlay=(W-w)/2:(H-h-h)[v]" -map "[v]" output.mp4'''
 cmd_path_ffprobe = '/tmp/ffprobe'
 cmd_query_video_info = cmd_path_ffprobe + ' -select_streams v -show_entries format=duration,size,bit_rate,filename -show_streams -v quiet -of csv="p=0" -of json -i %s'
@@ -339,7 +339,7 @@ if __name__ == '__main__':
                         "Action": "SpliceVideo",
                         "Data": {
                             "Input": {
-                                "URL": "http://1500009267.vod2.myqcloud.com/6c9c6980vodcq1500009267/0d7032f3387702294461673432/pz3wNIkIjCEA.mp4",
+                                "URL": "http://1500009267.vod2.myqcloud.com/6c9c6980vodcq1500009267/3d522fff387702295869084813/qPHZbNNaESEA.mp4",
                                             "Audio": true,
                                 "CallbackURL": "https://enk885gn0j1qox.m.pipedream.net",
                                 "Resolution": {
@@ -347,7 +347,7 @@ if __name__ == '__main__':
                                     "Height": 1280
                                 },
                                 "Framerate": 15,
-                                "Bitrate": 500,
+                                "Bitrate": 1800,
                                 "Texts": [
                                     {
                                         "Content": "作品名称：包装动画制作-缩放",
