@@ -62,6 +62,9 @@ def main_handler(event, context):
     subprocess.run(
         'cp ./ffprobe /tmp/ffprobe && chmod 755 /tmp/ffprobe',
         shell=True)
+    subprocess.run(
+        'cp ./STHeitiLight.ttc /tmp/STHeitiLight.ttc',
+        shell=True)
 
     try:
         logger.info('开始下载视频：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
@@ -153,7 +156,7 @@ def calc_pic_param(pictures, input_path, output_path):
 
 def calc_text_param(texts):
     text_param = ','
-    template = "drawtext=text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.5:boxborderw=5:x=%s:y=%s,"
+    template = "drawtext=fontfile=/tmp/STHeitiLight.ttc:text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.5:boxborderw=5:x=%s:y=%s,"
     for text in texts:
         text_param += template % (text.content, text.size, text.x, text.y)
 
