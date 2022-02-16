@@ -156,7 +156,7 @@ def calc_pic_param(pictures, input_path, output_path):
 
 def calc_text_param(texts):
     text_param = ','
-    template = "drawtext=fontfile=/tmp/STHeitiLight.ttc:text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.5:boxborderw=5:x=%s:y=%s,"
+    template = "drawtext=fontfile=/tmp/STHeitiLight.ttc:text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s,"
     for text in texts:
         text_param += template % (text.content, text.size, text.x, text.y)
 
