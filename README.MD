@@ -42,13 +42,15 @@
                     "Content": "xxxx",
                     "X": 1,
                     "Y": 2,
-                    "Size": 3
+                    "Size": 3,
+                    "EnableBox": true
                 },
                 {
                     "Content": "xxxx",
                     "X": 1,
                     "Y": 2,
-                    "Size": 3
+                    "Size": 3,
+                    "EnableBox": false
                 }
             ],
             "Pictures": [

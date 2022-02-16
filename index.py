@@ -157,9 +157,9 @@ def calc_pic_param(pictures, input_path, output_path):
 
 def calc_text_param(texts):
     text_param = ','
-    template = "drawtext=fontfile=/tmp/%s:text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s,"
+    template = "drawtext=fontfile=/tmp/%s:text='%s':fontcolor=white:fontsize=%d:box=%s:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s,"
     for text in texts:
-        text_param += template % (font_file, text.content, text.size, text.x, text.y)
+        text_param += template % (font_file, text.content, text.size, text.enable_box, text.x, text.y)
 
     return text_param[0:len(text_param) - 1]
 
@@ -181,7 +181,10 @@ def extract_parameters(req_body):
         x = text['X']
         y = text['Y']
         size = text['Size']
-        texts.append(Text(content, x, y, size))
+        enable_box = '0'
+        if 'EnableBox' in text:
+            enable_box = '1' if text['EnableBox'] else '0'
+        texts.append(Text(content, x, y, size, enable_box))
     pictures_json = req_param['Data']['Input']['Pictures']
     pictures = []
     for picture in pictures_json:
@@ -359,19 +362,22 @@ if __name__ == '__main__':
                                         "Content": "作品名称：包装动画制作-缩放",
                                         "X": "(w-text_w)/2",
                                         "Y": "(h-text_h)/5",
-                                        "Size": 30
+                                        "Size": 30,
+                                        "EnableBox": true
                                     },
                                     {
                                         "Content": "一米阳光的创作过程",
                                         "X": "(w-text_w)/2",
                                         "Y": "(h-text_h)/5*4",
-                                        "Size": 24
+                                        "Size": 24,
+                                        "EnableBox": false
                                     },
                                     {
                                         "Content": "2022.1.19",
                                         "X": "(w-text_w)/2",
                                         "Y": "h/5*4+text_h",
-                                        "Size": 24
+                                        "Size": 24,
+                                        "EnableBox": true
                                     }
                                 ],
                                 "Pictures": [
