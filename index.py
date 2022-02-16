@@ -157,7 +157,7 @@ def calc_pic_param(pictures, input_path, output_path):
 
 def calc_text_param(texts):
     text_param = ','
-    template = "drawtext=fontfile=/tmp/%s:text='%s':fontcolor=white:fontsize=%d:box=%s:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s,"
+    template = "drawtext=fontfile=/tmp/%s:text='%s':fontcolor=white:fontsize=%d:box=%s:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s:fix_bounds=true,"
     for text in texts:
         text_param += template % (font_file, text.content, text.size, text.enable_box, text.x, text.y)
 
@@ -359,7 +359,7 @@ if __name__ == '__main__':
                                 "Bitrate": 1800,
                                 "Texts": [
                                     {
-                                        "Content": "作品名称：包装动画制作-缩放",
+                                        "Content": "作品名称：包装动画制作-缩放这是一个非常超级长的文字真的很长",
                                         "X": "(w-text_w)/2",
                                         "Y": "(h-text_h)/5",
                                         "Size": 30,
