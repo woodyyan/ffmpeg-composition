@@ -15,6 +15,7 @@ from qcloud_vod.model import VodUploadRequest
 from qcloud_vod.vod_upload_client import VodUploadClient
 from text import Text
 
+font_file = 'STHeitiLight.ttc'
 cmd_path_ffmpeg = '/tmp/ffmpeg'
 video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s%s" -b:v 1800000 -bufsize 1800000 -minrate 1800000 -maxrate 1800000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
 image_command = cmd_path_ffmpeg + ''' -y -i /tmp/output.mp4 -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/logo.png -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/学员头像.jpg -filter_complex "[1:v][0:v]scale2ref=168:50[1][0];[0][1]overlay=(W-w)/2:(H-h)/7[bg0];[2:v][bg0]scale2ref=50:50[2][bg0];[bg0][2]overlay=(W-w)/2:(H-h-h)[v]" -map "[v]" output.mp4'''
@@ -63,7 +64,7 @@ def main_handler(event, context):
         'cp ./ffprobe /tmp/ffprobe && chmod 755 /tmp/ffprobe',
         shell=True)
     subprocess.run(
-        'cp ./STHeitiLight.ttc /tmp/STHeitiLight.ttc',
+        'cp ./%s /tmp/%s' % (font_file, font_file),
         shell=True)
 
     try:
@@ -156,9 +157,9 @@ def calc_pic_param(pictures, input_path, output_path):
 
 def calc_text_param(texts):
     text_param = ','
-    template = "drawtext=fontfile=/tmp/STHeitiLight.ttc:text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s,"
+    template = "drawtext=fontfile=/tmp/%s:text='%s':fontcolor=white:fontsize=%d:box=1:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s,"
     for text in texts:
-        text_param += template % (text.content, text.size, text.x, text.y)
+        text_param += template % (font_file, text.content, text.size, text.x, text.y)
 
     return text_param[0:len(text_param) - 1]
 
