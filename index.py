@@ -157,7 +157,7 @@ def calc_pic_param(pictures, input_path, output_path):
 
 def calc_text_param(texts):
     text_param = ','
-    template = "drawtext=fontfile=/tmp/%s:text='%s':fontcolor=white:fontsize=%d:box=%s:boxcolor=black@0.24:boxborderw=5:x=%s:y=%s:fix_bounds=true,"
+    template = "drawtext=fontfile=/tmp/%s:text='%s':fontcolor=white:fontsize=%d:box=%s:boxcolor=black@0.24:boxborderw=10:x=%s:y=%s:fix_bounds=true,"
     max_len = 22  # 22个中文字符会超出屏幕
     for text in texts:
         if len(text.content) > max_len:
