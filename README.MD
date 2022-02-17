@@ -85,6 +85,8 @@
 | TargetVideoSpec.Framerate | int | 目标帧率 |
 | TargetVideoSpec.Bitrate | int | 目标码率 |
 | Texts | list | 要添加的多种文字，x,y表达式请参考下面。 |
+| Text.EnableBox | bool | 默认值是false，如果为true则表示给文字加上底部蒙层 |
+| Text.Font | string | 指定该文字要用的字体 |
 | Pictures | list | 要添加的多张图片 |
 | Region | int | 要上传的VOD的地域 |
 | SubAppId | int | 要上传的VOD的subappid |
