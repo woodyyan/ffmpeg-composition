@@ -17,7 +17,7 @@ from text import Text
 
 default_font_file = 'STHeitiLight.ttc'
 cmd_path_ffmpeg = '/tmp/ffmpeg'
-video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s%s" -b:v 1800000 -bufsize 1800000 -minrate 1800000 -maxrate 1800000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 %s'''
+video_command = cmd_path_ffmpeg + ''' -y -i %s -vf "%s%s" -b:v 1800000 -bufsize 1800000 -minrate 1800000 -maxrate 1800000 -c:v libx264 -crf 21 -preset veryfast -aspect 9:16 -c:a copy -f mp4 -r 24 %s'''
 image_command = cmd_path_ffmpeg + ''' -y -i /tmp/output.mp4 -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/logo.png -i /Users/yansongbai/Desktop/十方/素材文件及合成视频预览/学员头像.jpg -filter_complex "[1:v][0:v]scale2ref=168:50[1][0];[0][1]overlay=(W-w)/2:(H-h)/7[bg0];[2:v][bg0]scale2ref=50:50[2][bg0];[bg0][2]overlay=(W-w)/2:(H-h-h)[v]" -map "[v]" output.mp4'''
 cmd_path_ffprobe = '/tmp/ffprobe'
 cmd_query_video_info = cmd_path_ffprobe + ' -select_streams v -show_entries format=duration,size,bit_rate,filename -show_streams -v quiet -of csv="p=0" -of json -i %s'
