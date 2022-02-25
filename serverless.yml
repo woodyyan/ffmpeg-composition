@@ -36,7 +36,7 @@ inputs:
   retryNum: 2
   role: SCF_ExecuteRole
   runtime: Python3.7
-  src: ./src
+  src: ./
   timeout: 30
   type: event
 name: ap-chengdu_shifang_shifang-ffmpeg-composition-sync
