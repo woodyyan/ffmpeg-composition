@@ -8,7 +8,7 @@ import sys
 import time
 
 import requests
-from config import TENCENTCLOUD_SECRETID, TENCENTCLOUD_SECRETKEY
+# from config import TENCENTCLOUD_SECRETID, TENCENTCLOUD_SECRETKEY
 from parameters import Params
 from picture import Picture
 from qcloud_vod.model import VodUploadRequest
@@ -421,8 +421,8 @@ if __name__ == '__main__':
         "request_id": "123"
     }
 
-    os.environ.setdefault("TENCENTCLOUD_SECRETID", TENCENTCLOUD_SECRETID)
-    os.environ.setdefault("TENCENTCLOUD_SECRETKEY", TENCENTCLOUD_SECRETKEY)
+    # os.environ.setdefault("TENCENTCLOUD_SECRETID", TENCENTCLOUD_SECRETID)
+    # os.environ.setdefault("TENCENTCLOUD_SECRETKEY", TENCENTCLOUD_SECRETKEY)
     video_command = video_command.replace('/tmp/', '')
     cmd_query_video_info = cmd_query_video_info.replace('/tmp', '')
     cmd_path_ffmpeg = 'ffmpeg'
