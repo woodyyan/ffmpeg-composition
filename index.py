@@ -311,8 +311,11 @@ def ffprobe_info(file_path):
 
 
 def calc_scale_param(video_path, target_video_width, target_video_height):
-    return 'scale=720:-1,pad=720:1280:0:(oh-ih)/2:black'
     width, height = query_width_height(video_path)
+    if height > 1280:
+        return 'scale=-1:1280,pad=720:1280:(ow-iw)/2:0:black'
+    return 'scale=720:-1,pad=720:1280:0:(oh-ih)/2:black'
+
     if width != target_video_width or height != target_video_height:
         scale_param = ""
         if width < target_video_width and height <= target_video_height:
