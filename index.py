@@ -8,7 +8,6 @@ import sys
 import time
 
 import requests
-# from config import TENCENTCLOUD_SECRETID, TENCENTCLOUD_SECRETKEY
 from parameters import Params
 from picture import Picture
 from qcloud_vod.model import VodUploadRequest
