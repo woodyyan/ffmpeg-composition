@@ -4,7 +4,7 @@ inputs:
   cls:
     logsetId: 7cb1c8d7-0a91-452f-95fe-78441855e24c
     topicId: 2c81e19a-4d49-489f-892f-c13dcf17bab1
-  description: helloworld 空白模板函数
+  description: 视频处理云函数
   eip: false
   events:
     - apigw:
@@ -17,7 +17,7 @@ inputs:
                 isIntegratedResponse: false
               isBase64Encoded: false
               method: ANY
-              path: /shifang-ffmpeg-composition-sync
+              path: /ffmpeg-composition-sync
               serviceTimeout: 30
           environment: release
           protocols:
@@ -29,8 +29,8 @@ inputs:
   initTimeout: 65
   memorySize: 3072
   msgTTL: 21600
-  name: shifang-ffmpeg-composition-sync
-  namespace: shifang
+  name: ffmpeg-composition-sync
+  namespace: default
   publicAccess: true
   region: ap-chengdu
   retryNum: 2
@@ -39,7 +39,7 @@ inputs:
   src: ./
   timeout: 30
   type: event
-name: ap-chengdu_shifang_shifang-ffmpeg-composition-sync
+name: ap-chengdu_shifang-ffmpeg-composition-sync
 org: '1307427535'
 stage: dev
 # When using this configuration file for deployment, make sure the file name is "serverless.yml".
