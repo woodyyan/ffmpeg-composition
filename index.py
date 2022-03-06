@@ -352,6 +352,7 @@ def calc_scale_param(video_path, target_video_width, target_video_height):
 
 
 if __name__ == '__main__':
+    # 本地测试
     event = {
         'body': '''{
                         "Action": "SpliceVideo",
