@@ -8,13 +8,13 @@ inputs:
     - apigw:
         parameters:
           endpoints:
+            - path: /ffmpeg-composition
               enableCORS: false
               function:
                 functionQualifier: $DEFAULT
                 isIntegratedResponse: false
               isBase64Encoded: false
               method: ANY
-              path: /ffmpeg-composition
               serviceTimeout: 30
           environment: release
           protocols:
