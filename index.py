@@ -358,7 +358,7 @@ if __name__ == '__main__':
                         "Action": "SpliceVideo",
                         "Data": {
                             "Input": {
-                                "URL": "http://1500009267.vod2.myqcloud.com/6c9c6980vodcq1500009267/3d522fff387702295869084813/qPHZbNNaESEA.mp4",
+                                "URL": "http://xxx.mp4",
                                             "Audio": true,
                                 "CallbackURL": "https://enk885gn0j1qox.m.pipedream.net",
                                 "Resolution": {
@@ -369,21 +369,21 @@ if __name__ == '__main__':
                                 "Bitrate": 1800,
                                 "Texts": [
                                     {
-                                        "Content": "作品名称：包装动画制作-缩放这是一个非常超级长的文字真的很长",
+                                        "Content": "这是一个标题",
                                         "X": "(w-text_w)/2",
                                         "Y": "(h-text_h)/5",
                                         "Size": 30,
                                         "EnableBox": true
                                     },
                                     {
-                                        "Content": "一米阳光的创作过程",
+                                        "Content": "这是一个名字",
                                         "X": "(w-text_w)/2",
                                         "Y": "(h-text_h)/5*4",
                                         "Size": 24,
                                         "EnableBox": false
                                     },
                                     {
-                                        "Content": "2022.1.19",
+                                        "Content": "2022.3.19",
                                         "X": "(w-text_w)/2",
                                         "Y": "h/5*4+text_h",
                                         "Size": 24,
@@ -392,14 +392,14 @@ if __name__ == '__main__':
                                 ],
                                 "Pictures": [
                                     {
-                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/logo.png",
+                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/data/440px-Tencent_Cloud_logo.svg.png",
                                         "X": "(W-w)/2",
                                         "Y": "(H-h)/7",
                                         "Width": 168,
                                         "Height": 55
                                     },
                                     {
-                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/shifang/%E5%AD%A6%E5%91%98%E5%A4%B4%E5%83%8F.jpg",
+                                        "URL": "https://woody-chengdu-1307427535.cos.ap-chengdu.myqcloud.com/data/abc.jpg",
                                         "X": "(W-w)/2",
                                         "Y": "(H-h-h*2)",
                                         "Width": 50,
